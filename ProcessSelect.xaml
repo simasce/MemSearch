@@ -1,0 +1,30 @@
+﻿<Window x:Class="MemSearch.ProcessSelect"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MemSearch"
+        mc:Ignorable="d"
+        Title="Process Selection" Height="460" Width="360" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF979797">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="ProcessSelectButton" Content="Select" HorizontalAlignment="Center" Height="46" Margin="0,366,0,0" VerticalAlignment="Top" Width="334" Click="ProcessSelectButton_Click"/>
+        <DataGrid x:Name="ProcessSelectDataGrid" HorizontalAlignment="Center" Height="330" Margin="0,31,0,0" VerticalAlignment="Top" Width="336" SelectionMode="Single" IsReadOnly="True" SelectionChanged="ProcessSelectDataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ProcessName" Width="215" Binding="{Binding Path=ProcessName}"/>
+                <DataGridTextColumn Header="ProcessID" Width="95" Binding="{Binding Path=ProcessID}"/>
+            </DataGrid.Columns>
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="ProcessSelectDataGridRow_DoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
+        </DataGrid>
+        <Label Content="Process Selection" HorizontalAlignment="Center" Margin="0,5,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>
