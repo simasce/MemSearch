@@ -80,11 +80,17 @@ namespace MemSearch
 			UInt64 baseAddr = start;
 			for (; baseAddr < end; baseAddr++)
 			{
-				byte[] readBytes = TargetProcess.ReadBuffer(baseAddr, SearchArray.Length);
-				if (readBytes.SequenceEqual(SearchArray))
-				{
-					result.Addresses.Add(baseAddr);
+				try
+                {
+					byte[] readBytes = TargetProcess.ReadBuffer(baseAddr, SearchArray.Length);
+					if (readBytes.SequenceEqual(SearchArray))
+					{
+						result.Addresses.Add(baseAddr);
+					}
 				}
+				catch(Exception e)
+                {
+                }
 				BytesRead++;
 				ReadPercentage = (float)((double)BytesRead / (double)TargetSize);
 			}           
@@ -153,7 +159,7 @@ namespace MemSearch
 			ThreadSearch.Start();
 		}
 
-		public void SearchAgain()
+		public void SearchAgain(byte[] searchBytes)
 		{        
 			if (!ProcessSelected)
 				throw new Exception("Process not selected!");
@@ -162,6 +168,8 @@ namespace MemSearch
 				throw new Exception("Process is not open!");
 
 			ThreadSemaphore.WaitOne();
+			SearchArray = searchBytes;
+
 			if (LastResult.Addresses.Count < 1 || SearchArray.Length < 1)
 			{
 				ThreadSemaphore.Release();

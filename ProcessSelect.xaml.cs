@@ -46,6 +46,15 @@ namespace MemSearch
 			ProcessInfo selectedProc = (ProcessInfo)ProcessSelectDataGrid.SelectedItem;
 			try
 			{
+				if((string)ProcessMainWindow.SelectedProcessLabel.Content != selectedProc.ThisProcess.ProcessName && 
+					(ProcessMainWindow.AddressListDataGrid.Items.Count > 0 || ProcessMainWindow.SearchResultDataGrid.Items.Count > 0))
+                {
+					MessageBoxResult res = MessageBox.Show("Selecting a new process will clear the address table!\nDo you want to continue?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+					if (res == MessageBoxResult.No)
+						return;
+					ProcessMainWindow.AddressListDataGrid.Items.Clear();
+					ProcessMainWindow.SearchResultDataGrid.Items.Clear();
+				}
 				MemoryProcess memProc = new MemoryProcess(selectedProc.ThisProcess);
 				ProcessMainWindow.SetSelectedProcess(memProc);
 				this.Close();

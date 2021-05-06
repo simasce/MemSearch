@@ -32,11 +32,11 @@
                 </Style>
             </DataGrid.Resources>
         </DataGrid>
-        <DataGrid x:Name="AddressListDataGrid" Grid.Column="2" HorizontalAlignment="Left" Height="176" Margin="10,20,0,0" Grid.Row="2" VerticalAlignment="Top" Width="534">
+        <DataGrid x:Name="AddressListDataGrid" Grid.Column="2" HorizontalAlignment="Left" Height="176" Margin="10,20,0,0" Grid.Row="2" VerticalAlignment="Top" Width="534" PreviewKeyDown="AddressDataGrid_PreviewKeyDown">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Address" Width="150" Binding="{Binding Path=Address}"/>
-                <DataGridTextColumn Header="Type" Width="130" Binding="{Binding Path=ValueTypeString}"/>
-                <DataGridTextColumn Header="Value" Width="250" Binding="{Binding Path=Value}"/>
+                <DataGridTextColumn Header="Address" Width="150" Binding="{Binding Path=Address}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Type" Width="130" Binding="{Binding Path=ValueTypeString}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Value" Width="250" Binding="{Binding Path=Value}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <Label Content="Search results" Grid.Column="1" HorizontalAlignment="Center" Margin="0,41,0,0" VerticalAlignment="Top" Grid.RowSpan="2"/>
