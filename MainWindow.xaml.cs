@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace MemSearch
 	{
 		private MemoryProcess SelectedProcess = null;
 		private MemorySearcher Searcher = new MemorySearcher();
+		private SearchDataLoader SearchLoader = new SearchDataLoader();
+
 		private SearchType CurrentSearchType = SearchType.Int32;
 		private bool WasSearching = false;
 		private int TimerTick = 1;	
@@ -81,6 +84,8 @@ namespace MemSearch
 			NewSearchButton.IsEnabled = enable;
 			AddressListDataGrid.IsEnabled = enable;
 			SearchResultDataGrid.IsEnabled = enable;
+			SaveButton.IsEnabled = enable;
+			LoadButton.IsEnabled = enable;
 			TimerTick = 1;
 		}
 
@@ -279,5 +284,66 @@ namespace MemSearch
 
 			AddressListDataGrid.Items.Remove(AddressListDataGrid.SelectedItem);
         }
+
+		private void SaveButton_Click(object sender, EventArgs e)
+        {
+			if(AddressListDataGrid.Items.Count <= 0)
+            {
+				MessageBox.Show("There isn't any data in the address box!", "Oops!", MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+            }
+
+			SaveFileDialog saveDialog = new SaveFileDialog();
+
+			saveDialog.Filter = "MemSearch Binaries (*.msearch)|*.msearch|All files (*.*)|*.*";
+			saveDialog.FilterIndex = 1;
+			saveDialog.RestoreDirectory = true;
+
+			if (!saveDialog.ShowDialog().Value)
+				return;
+
+			List<SearchEntry> saveList = new List<SearchEntry>();
+			foreach(SearchEntry a in AddressListDataGrid.Items)
+				saveList.Add(a);
+
+			SearchLoader.SaveFile(saveDialog.FileName, saveList, SelectedProcess.GetProcess().ProcessName);
+		}
+
+		private void LoadButton_Click(object sender, EventArgs e)
+		{
+			if (AddressListDataGrid.Items.Count > 0)
+			{
+				MessageBoxResult res = MessageBox.Show("Loading a saved file will clear the address box!\nDo you want to continue?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+				if(res == MessageBoxResult.No)
+					return;
+			}
+
+			OpenFileDialog loadDialog = new OpenFileDialog();
+
+			loadDialog.Filter = "MemSearch Binaries (*.msearch)|*.msearch|All files (*.*)|*.*";
+			loadDialog.FilterIndex = 1;
+			loadDialog.RestoreDirectory = true;
+
+			if (!loadDialog.ShowDialog().Value)
+				return;
+
+			List<SearchEntry> loadList;
+			string loadProcName;
+
+			if (!SearchLoader.LoadFile(loadDialog.FileName, out loadProcName, out loadList))
+				return; //failed to load file
+
+			if(loadProcName != SelectedProcess.GetProcess().ProcessName)
+            {
+				MessageBoxResult res = MessageBox.Show("Current loaded process name mismatches the name written to saved file.\nDo you want to continue?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+				if (res == MessageBoxResult.No)
+					return;
+			}
+
+			AddressListDataGrid.Items.Clear();
+			foreach (SearchEntry entry in loadList)
+				AddressListDataGrid.Items.Add(entry);
+			AddressListDataGrid.Items.Refresh();
+		}
 	}
 }
