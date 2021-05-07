@@ -38,6 +38,11 @@
                 <DataGridTextColumn Header="Type" Width="130" Binding="{Binding Path=ValueTypeString}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Value" Width="250" Binding="{Binding Path=Value}" IsReadOnly="True"/>
             </DataGrid.Columns>
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="AddressListDataGridRow_DoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
         </DataGrid>
         <Label Content="Search results" Grid.Column="1" HorizontalAlignment="Center" Margin="0,41,0,0" VerticalAlignment="Top" Grid.RowSpan="2"/>
         <Label Content="Address list" Grid.Column="2" HorizontalAlignment="Center" Margin="0,158,0,0" VerticalAlignment="Top" Grid.RowSpan="2" Grid.Row="1"/>

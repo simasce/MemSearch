@@ -24,5 +24,6 @@ namespace MemSearch
 		public string Value { get; set; }
 		public SearchType ValueType { get; set; }
 		public string ValueTypeString { get; set; }
+		public bool Frozen { get; set; }
 	}
 }
