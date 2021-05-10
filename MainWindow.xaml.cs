@@ -127,6 +127,13 @@ namespace MemSearch
 			if (write.Length <= 0)
 				return; //failed to parse, no messagebox to avoid spam
 
+			if (en.ValueType == SearchType.String)
+			{
+				List<byte> strList = write.ToList();
+				strList.Add((byte)0x00);
+				write = strList.ToArray();
+			}
+
 			SelectedProcess.WriteBuffer(en.OriginalAddress, write);
 		}
 

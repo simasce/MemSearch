@@ -46,6 +46,13 @@ namespace MemSearch
                 return;
             }
 
+            if (TargetEntry.ValueType == SearchType.String)
+            {
+                List<byte> strList = writeBuf.ToList();
+                strList.Add((byte)0x00);
+                writeBuf = strList.ToArray();
+            }
+
             TargetEntry.Frozen = FrozenCheckBox.IsChecked.Value;
             TargetEntry.Value = ValueTextBox.Text;
             
