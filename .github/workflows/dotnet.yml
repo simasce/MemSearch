@@ -7,7 +7,7 @@ on:
     branches: [ master ]
     
 env:
-  ZIP_PATH: MemSearch/bin/Release/net5.0-windows/MemSearch.zip
+  ZIP_PATH: MemSearch/bin/Release/net5.0-windows/publish/MemSearch.zip
   FOLDER_PATH: MemSearch/bin/Release/net5.0-windows/publish/
   
 jobs:
@@ -16,7 +16,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Initialize Actions
+      uses: actions/checkout@v2
+        
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -29,10 +31,10 @@ jobs:
       run: dotnet publish -c Release --no-restore
       
     - name: Create Zip File
-      uses: papeloto/action-zip@v1
+      uses: montudor/action-zip@v1.0.0
       with:
-        files: ${{ env.FOLDER_PATH }}
-        dest: ${{ env.ZIP_PATH }}
+        args: zip -qq -r MemSearch.zip
+        working-directory: ${{ env.FOLDER_PATH }}
   
     - name: Initialize Release
       uses: actions/create-release@v1
