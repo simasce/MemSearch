@@ -29,9 +29,9 @@ namespace MemSearch
 
 		private SearchType CurrentSearchType = SearchType.Int32;
 		private bool WasSearching = false;
-		private int TimerTick = 1;	
+		private int TimerTick = 1;
 
-		public MainWindow()
+        public MainWindow()
 		{
 			InitializeComponent();
 			SelectedProcessLabel.Content = "";
@@ -46,7 +46,7 @@ namespace MemSearch
 			SearchTypeComboBox.SelectedItem = SearchTypeConverter.SearchTypeStrings[(int)CurrentSearchType];
 			SearchProgressBar.Maximum = 100;
 			SearchProgressBar.Minimum = 0;
-		}
+        }
 
 		private bool ProcessSelected()
 		{
@@ -86,7 +86,16 @@ namespace MemSearch
 			SearchResultDataGrid.IsEnabled = enable;
 			SaveButton.IsEnabled = enable;
 			LoadButton.IsEnabled = enable;
-			TimerTick = 1;
+            TimerTick = 1;
+            UpdateDisassemblerButton(enable);
+        }
+
+        private void UpdateDisassemblerButton(bool enable)
+        {
+			if(SelectedProcess != null && SelectedProcess.Is64Bit())
+                DisassemblerButton.IsEnabled = false;
+			else
+			    DisassemblerButton.IsEnabled = enable;
 		}
 
 		private bool UpdateSearchEntry(SearchEntry en)
@@ -352,5 +361,19 @@ namespace MemSearch
 				AddressListDataGrid.Items.Add(entry);
 			AddressListDataGrid.Items.Refresh();
 		}
-	}
+
+        private void DisassemblerButton_Click(object sender, RoutedEventArgs e)
+        {
+			OpenDisassemblerWindow();
+        }
+
+        private void OpenDisassemblerWindow()
+        {
+            if (SelectedProcess == null || SelectedProcess.Is64Bit() || !SelectedProcess.IsOpen())
+                return;
+
+            Disassembler ds = new Disassembler(SelectedProcess);
+            ds.Show();
+        }
+    }
 }

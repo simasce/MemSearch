@@ -14,4 +14,21 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="SimAssembler\**" />
+    <EmbeddedResource Remove="SimAssembler\**" />
+    <None Remove="SimAssembler\**" />
+    <Page Remove="SimAssembler\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="SimAssembler\SimAssembler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Disassembler.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+  </ItemGroup>
+
 </Project>

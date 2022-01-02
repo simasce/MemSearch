@@ -56,5 +56,6 @@
         <ProgressBar x:Name="SearchProgressBar" Grid.Column="2" HorizontalAlignment="Left" Height="21" Margin="10,138,0,0" VerticalAlignment="Top" Width="534" Grid.Row="1"/>
         <Button x:Name="SaveButton" Content="Save" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="35" Width="64" Click="SaveButton_Click" Margin="396,0,0,0"/>
         <Button x:Name="LoadButton" Content="Load" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Height="35" Width="64" Click="LoadButton_Click" Margin="465,0,0,0"/>
+        <Button x:Name="DisassemblerButton" Grid.Column="2" Content="X86 Disassembler" HorizontalAlignment="Left" Margin="375,98,0,0" Grid.Row="1" VerticalAlignment="Top" Height="35" Width="169" Click="DisassemblerButton_Click"/>
     </Grid>
 </Window>
