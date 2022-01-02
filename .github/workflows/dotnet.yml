@@ -7,8 +7,8 @@ on:
     branches: [ master ]
     
 env:
-  ZIP_PATH: MemSearch/bin/Release/net5.0-windows/MemSearch.zip
-  FOLDER_PATH: MemSearch/bin/Release/net5.0-windows/publish/
+  ZIP_PATH: bin/Release/net5.0-windows/MemSearch.zip
+  FOLDER_PATH: bin/Release/net5.0-windows/publish/
   
 jobs:
   build:
@@ -35,7 +35,6 @@ jobs:
       with:
         files: ${{ env.FOLDER_PATH }}
         dest: ${{ env.ZIP_PATH }}
-        recursive: true
   
     - name: Bump version and push tag
       id: tag_version
