@@ -35,6 +35,7 @@ jobs:
       with:
         files: ${{ env.FOLDER_PATH }}
         dest: ${{ env.ZIP_PATH }}
+        recursive: true
   
     - name: Bump version and push tag
       id: tag_version
