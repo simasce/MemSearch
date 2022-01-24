@@ -1,3 +1,6 @@
+[![Build status](https://github.com/simasce/MemSearch/actions/workflows/dotnet.yml/badge.svg)](https://github.com/simasce/MemSearch)
+[![Latest release](https://img.shields.io/github/v/release/simasce/MemSearch)](https://github.com/simasce/MemSearch)
+
 # MemSearch
 C# WinAPI program for searching and editing x86 and 64bit program memory 
 
