@@ -20,9 +20,14 @@ namespace SimAssembler.OpcodeParameters
             return new OpcodeReturnInfo()
             {
                 Offset = info.Offset,
-                Bytes = new byte[0],
+                Bytes = new List<byte>(),
                 Result = Name
             };
+        }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            return parameter.Equals(Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

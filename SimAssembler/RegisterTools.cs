@@ -66,7 +66,7 @@ namespace SimAssembler
             || ParsingFunction(SREG_Registers, RegisterType.XMM, name, output))
                 return output;
 
-            throw new NotImplementedException();
+            return null;
         }
        
         private static bool ParsingFunction(string[] registerList, RegisterType type, string name, RegisterInfo output)

@@ -12,5 +12,10 @@ namespace SimAssembler.OpcodeParameters
         {
             throw new NotImplementedException();
         }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

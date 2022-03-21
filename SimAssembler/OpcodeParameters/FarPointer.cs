@@ -40,9 +40,28 @@ namespace SimAssembler.OpcodeParameters
             return new OpcodeReturnInfo()
             {
                 Result = str_header + ":" + str_body,
-                Bytes = buffer,
+                Bytes = buffer.ToList(),
                 Offset = info.Offset
             };
+        }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            string[] subParams = parameter.Split(':');
+            if (subParams.Length != 2)
+                return false;
+
+            byte[] compiled_header;
+            byte[] compiled_body;
+            if(!ConversionHelper.TryConvertNumericBySize(subParams[0], HeaderSize, out compiled_header) ||
+               !ConversionHelper.TryConvertNumericBySize(subParams[1], BodySize, out compiled_body))
+            {
+                return false;
+            }
+
+            compiledBytes.AddRange(compiled_header);
+            compiledBytes.AddRange(compiled_body);
+            return true;
         }
     }
 }

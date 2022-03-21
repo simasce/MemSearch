@@ -24,5 +24,35 @@ namespace SimAssembler
 
             return OpcodeParameterArray[reg];
         }
+
+        public override bool SuitableOpcode(string name, int numParameters)
+        {
+            for(int i = 0; i < OpcodeNames.Length; i++)
+            {
+                string names = OpcodeNames[i];
+
+                if (names == null)
+                    continue;
+
+                int len = OpcodeParameterArray[i].Count;
+
+                if (names.Equals(name, StringComparison.OrdinalIgnoreCase) && len == numParameters)
+                    return true;
+            }
+            return false;
+        }
+
+        protected override void FinalizeCompilation(string name, int numParameters, ref List<byte> compiledBytes)
+        {
+            for (int i = 0; i < OpcodeNames.Length; i++)
+            {
+                if (OpcodeNames[i] != null && OpcodeNames[i].Equals(name, StringComparison.OrdinalIgnoreCase) && OpcodeParameterArray[i].Count == numParameters)
+                {
+                    compiledBytes[1] |= (byte)(i << 3);
+                    return;
+                }
+            }
+            throw new Exception("Could not find the correct name in finalization"); // should NEVER happen
+        }
     }
 }

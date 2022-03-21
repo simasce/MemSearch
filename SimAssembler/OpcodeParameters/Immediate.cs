@@ -32,9 +32,21 @@ namespace SimAssembler.OpcodeParameters
             return new OpcodeReturnInfo()
             {
                 Result = "0x" + string.Join("", buffer.Reverse().Select(f => f.ToString("X2"))),
-                Bytes = buffer,
+                Bytes = buffer.ToList(),
                 Offset = info.Offset
             };
+        }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            byte[] compiled;
+            if (ConversionHelper.TryConvertNumericBySize(parameter, Size, out compiled))
+            {
+                compiledBytes.AddRange(compiled);
+                return true;
+            }
+                
+            return false;
         }
     }
 }

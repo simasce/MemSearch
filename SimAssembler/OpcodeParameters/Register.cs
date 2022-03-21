@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace SimAssembler.OpcodeParameters
 {    
@@ -76,7 +77,7 @@ namespace SimAssembler.OpcodeParameters
             return new OpcodeReturnInfo()
             {
                 Result = ret,
-                Bytes = extraBytes.ToArray(),
+                Bytes = extraBytes,
                 Offset = info.Offset
             };
         }
@@ -173,9 +174,6 @@ namespace SimAssembler.OpcodeParameters
 
             string index_register = RegisterTools.GetRegisterString(RegisterType.R32, index);
 
-            if (_base == 5 && mod == 0)
-                return $"[{index_register}*{scale.ToString()}+{base_register}]";
-
             return $"[{base_register}+{index_register}*{scale.ToString()}]";
         }
 
@@ -221,6 +219,269 @@ namespace SimAssembler.OpcodeParameters
                     return "QWORD PTR";
             }
             return "";
+        }
+
+        public override bool Compile(string fullString, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            string[] parms = fullString.Replace(" ", "").Split(',').Take(2).ToArray();
+            if (parms.Length != 2)
+                return false;
+
+            bool twoMods = false, stepDown = false;
+            RegisterInfo info1 = null, info2 = null;
+
+            byte outputByte = 0;
+            List<byte> additionalBytes = new List<byte>();
+
+            string[] invalidStrings = { "QWORDPTR", "DWORDPTR", "WORDPTR", "BYTEPTR" };
+            foreach (string str in invalidStrings)
+                parms[0] = parms[0].Replace(str, "");
+
+            //Custom check if one parameter
+            if(FirstDirection == RegisterDirection.RM && SecondDirection == RegisterDirection.NONE)
+            {
+                if (!parms[0].StartsWith("["))
+                    outputByte |= 0xC0; //mod 11
+
+                parms[0] = parms[0].Replace("[", "").Replace("]", "");
+
+                byte[] regBits; //unused
+                if (ConversionHelper.TryConvertNumericBySize(parms[1], 4, out regBits) && Regex.Match(parms[0], @"[A-Z]+").Success)
+                {
+                    RegisterInfo regInfo = null;
+                    regInfo = RegisterTools.ParseRegister(parms[0]);
+
+                    if(regInfo.Type != FirstType)
+                    {
+                        if (regInfo.Type == FirstType - 1)
+                            extraFrontBytes.Add(0x66);
+                        else
+                            return false;
+                    }
+
+                    if(regInfo != null)
+                    {
+                        outputByte |= (byte)regInfo.Index;
+                        compiledBytes.Add(outputByte);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (!CheckOpcodeCompatibility(parms, ref info1, ref info2, out stepDown, out twoMods))
+            {
+                return false;
+            }
+            else
+            {
+                if (twoMods) //mod == 3
+                {
+                    outputByte |= 0xC0; //0xC0 - 11000000 bit
+
+                    outputByte |= (byte)((FirstDirection == RegisterDirection.REG ? info1 : info2).Index << 3); //reg
+                    outputByte |= (byte)((FirstDirection == RegisterDirection.RM ? info1 : info2).Index); //rm
+                }
+                else
+                {
+                    //reg is ez
+                    outputByte |= (byte)((FirstDirection == RegisterDirection.REG ? info1 : info2).Index << 3); //reg
+
+                    //process RM and MOD
+                    RegisterInfo rmInfo = (FirstDirection == RegisterDirection.RM ? info1 : info2);
+                    string rmParam = (FirstDirection == RegisterDirection.RM ? parms[0] : parms[1]);
+                    if (rmParam.Length < 2)
+                        return false;
+
+                    string rmClean = rmParam.Substring(1, rmParam.Length - 2);
+                    if (Regex.Match(rmParam, @"\[[A-Z]+\]").Success) //[Register] or [Pointer]
+                    {
+                        RegisterInfo regInfo = null;
+                        regInfo = RegisterTools.ParseRegister(rmClean);
+
+                        if (regInfo != null)
+                        {
+                            if (regInfo.Type != RegisterType.R32)
+                                return false;
+
+                            if (regInfo.Index == 5) //ebp needs sib
+                            {
+                                outputByte |= 0x45; //01000101 mod = 1, rm = 101 (5)
+                                additionalBytes.Add(0x00); //EBP sib
+                            }
+                            else
+                            {
+                                if (regInfo.Index != 4)
+                                    outputByte |= (byte)regInfo.Index;
+                                else
+                                    return false;
+                            }
+                        }
+                        else
+                        {
+                            outputByte |= 5;
+                            additionalBytes.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+                            linkerRequests.Add(new LinkerRequestEntry()
+                            {
+                                Relative = false,
+                                Offset = compiledBytes.Count + extraFrontBytes.Count + 1,
+                                Size = 4,
+                                PointerName = rmClean
+                            });
+                        }
+                    }
+                    else if (Regex.Match(rmParam, @"\[(0X[0-9]+|[0-9]+)\]").Success) //[123] or [0X123]
+                    {
+                        byte[] compiled;
+                        if (ConversionHelper.TryConvertNumericBySize(rmClean, 4, out compiled))
+                        {
+                            outputByte |= 5;
+                            additionalBytes.AddRange(compiled);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (Regex.Match(rmParam, @"\[[A-Z]+\+(0X[0-9]+|[0-9]+)\]").Success) //[Register+123] or [Register+0X123] (disp32/disp8)
+                    {
+                        string[] rez = rmClean.Split('+');
+                        if (rez.Length != 2)
+                            return false;
+
+                        RegisterInfo regInfo = null;
+                        regInfo = RegisterTools.ParseRegister(rez[0]);
+
+                        if (regInfo == null)
+                            return false;
+
+                        if (regInfo.Index == 4)
+                            return false;
+
+                        byte[] compiled;
+                        if (ConversionHelper.TryConvertNumericBySize(rez[1], 1, out compiled))
+                        {
+                            outputByte |= 0x40; // mod 1
+                            outputByte |= (byte)regInfo.Index;
+                            additionalBytes.AddRange(compiled);
+                        }
+                        else if (ConversionHelper.TryConvertNumericBySize(rez[1], 4, out compiled))
+                        {
+                            outputByte |= 0x80; // mod 2
+                            outputByte |= (byte)regInfo.Index;
+                            additionalBytes.AddRange(compiled);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (Regex.Match(rmParam, @"\[[A-Z]+\*(0X[0-9]+|[0-9]+)\+(0X[0-9]+|[0-9]+)\]").Success) //[Register*(0-8)+Disp32]
+                    {
+                        /* string[] rez = rmClean.Split('*');
+                         if (rez.Length != 2)
+                             return false;
+
+                         string[] rezz = rez[1].Split('+');
+                         if (rezz.Length != 2)
+                             return false;
+
+                         byte[] compiledScale, compiledDisplacement;
+                         if (!ConversionHelper.TryConvertNumericBySize(rezz[0], 1, out compiledScale))
+                             return false;
+
+                         if (!ConversionHelper.TryConvertNumericBySize(rezz[1], 4, out compiledDisplacement))
+                             return false;
+
+                         RegisterInfo regInfo = null;
+                         try
+                         {
+                             regInfo = RegisterTools.ParseRegister(rez[0]);
+                         }
+                         catch (NotImplementedException e) { }
+
+                         if (regInfo == null)
+                             return false;
+
+                         byte sib = 0;
+                         sib |= (byte)(compiledScale[0] << (byte)6);*/
+
+                        return false;
+
+                    }
+                    else if (Regex.Match(rmParam, @"\[[A-Z]+\+[A-Z]+\*(0X[0-9]+|[0-9]+)\]").Success) //[Register+Register*(0-8)]
+                    {
+                        return false;
+                    }
+                    else if (Regex.Match(rmParam, @"\[[A-Z]+\+[A-Z]+\*(0X[0-9]+|[0-9]+)\+(0X[0-9]+|[0-9]+)\]").Success) //[Register+Register*(0-8)+disp32/disp8]
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }                     
+
+            if (stepDown)
+                extraFrontBytes.Add(0x66); // step down byte
+
+            compiledBytes.Add(outputByte);
+            compiledBytes.AddRange(additionalBytes);
+            return true;
+        }
+
+        private bool CheckOpcodeCompatibility(string[] parms, ref RegisterInfo info1, ref RegisterInfo info2, out bool stepDown, out bool twoMods)
+        {
+            stepDown = false;
+            twoMods = false;
+
+            info1 = RegisterTools.ParseRegister(parms[0]);
+            info2 = RegisterTools.ParseRegister(parms[1]);
+
+            if (info1 == null && info2 == null)
+                return false;
+
+            if (info1 == null && info2 != null)
+            {
+                if (FirstDirection != RegisterDirection.RM || SecondDirection != RegisterDirection.REG)
+                    return false;
+
+                if (info2.Type != SecondType)
+                {
+                    if (info2.Type != SecondType - 1)
+                        return false;
+                    else
+                        stepDown = true;
+                }
+            }
+            else if (info1 != null && info2 == null)
+            {
+                if (FirstDirection != RegisterDirection.REG || SecondDirection != RegisterDirection.RM)
+                    return false;
+
+                if (info1.Type != FirstType)
+                {
+                    if (info1.Type != FirstType - 1)
+                        return false;
+                    else
+                        stepDown = true;
+                }
+            }
+            else
+            {
+                twoMods = true;
+                if (info1.Type != FirstType || info2.Type != SecondType)
+                {
+                    if (info1.Type != FirstType - 1 && info2.Type != SecondType - 1)
+                        return false;
+                    else
+                        stepDown = true;
+                }
+            }
+
+            return true;
         }
     }
 }
