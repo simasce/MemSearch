@@ -99,7 +99,7 @@ namespace SimAssembler
             string errorCode = "";
             if(!compiler.Compile(assemblerText, out errorCode))
             {
-                Console.WriteLine(errorCode);
+                //Console.WriteLine(errorCode);
                 finished = false;
                 return null;
             }

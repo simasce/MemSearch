@@ -14,7 +14,7 @@
         <TextBox x:Name="SizeTextBox" HorizontalAlignment="Left" Height="26" Margin="138,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
         <Label x:Name="SizeLabel" Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="180,8,0,0"/>
 
-        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Center" Height="216" Margin="0,69,0,0" VerticalAlignment="Top" Width="549">
+        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Center" Height="216" Margin="0,69,0,0" VerticalAlignment="Top" Width="549" MouseDoubleClick="DisassemblerDataGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Address" Width="100" Binding="{Binding Path=Address}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Bytes" Width="250" Binding="{Binding Path=ByteString}" IsReadOnly="true"/>

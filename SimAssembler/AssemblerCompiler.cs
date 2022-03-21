@@ -284,13 +284,15 @@ namespace SimAssembler
         }
 
         private bool CompileFromContainer(string line, string name, List<string> parameters, List<Opcode> opcodes)
-        {
-            List<byte> result = new List<byte>();
-            List<LinkerRequestEntry> linkerRequestEntries = new List<LinkerRequestEntry>();
-            foreach (Opcode op in OpcodeContainers.OpcodeContainer.Opcodes)
+        {            
+            var possibleReturns = new List<Tuple<OpcodeReturnInfo, List<LinkerRequestEntry>>>();
+           
+            foreach (Opcode op in opcodes)
             {
                 if (op.SuitableOpcode(name, parameters.Count))
                 {
+                    List<byte> result = new List<byte>();
+                    List<LinkerRequestEntry> linkerRequestEntries = new List<LinkerRequestEntry>();
                     if (op.Compile(name, parameters, ref result, ref linkerRequestEntries))
                     {
                         var returnInfo = new OpcodeReturnInfo()
@@ -303,15 +305,24 @@ namespace SimAssembler
                         foreach (var e in linkerRequestEntries)
                             e.CompiledOpcode = returnInfo;
 
-                        _opcodes.Add(returnInfo);
-
-                        _linkerRequestEntries.AddRange(linkerRequestEntries);
-                        _pointer += (ulong)result.Count;
-                        return true;
+                        possibleReturns.Add(Tuple.Create(returnInfo, linkerRequestEntries));
                     }
                 }
             }
-            return false;
+
+            if (possibleReturns.Count == 0)
+                return false;
+
+            var bestOption = possibleReturns.OrderBy(f => f.Item1.Bytes.Count).FirstOrDefault();
+            if (bestOption == null)
+                return false;
+
+            _opcodes.Add(bestOption.Item1);
+
+            _linkerRequestEntries.AddRange(bestOption.Item2);
+            _pointer += (ulong)bestOption.Item1.Bytes.Count;
+
+            return true;
         }
 
         /// <summary>

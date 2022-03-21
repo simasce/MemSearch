@@ -65,7 +65,9 @@ namespace MemSearch
                     {
                         Address = dis.Offset.ToString("X"),
                         ByteString = string.Join(' ', dis.Bytes.Select(f => f.ToString("X2"))),
-                        Code = dis.Result
+                        Code = dis.Result,
+                        Size = dis.Bytes.Count
+
                     };
                     DisassemblerDataGrid.Items.Add(entry);
                 }
@@ -73,6 +75,16 @@ namespace MemSearch
             catch (Exception)
             { 
             }
+        }
+
+        private void DisassemblerDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (DisassemblerDataGrid.SelectedItem == null)
+                return;
+
+            new Assembler((DisassemblerEntry)DisassemblerDataGrid.SelectedItem, TargetProcess).ShowDialog();
+
+            Update();
         }
     }
 }

@@ -39,7 +39,7 @@ namespace SimAssembler
                 byte outByteVal = 0;
                 if (hex ? byte.TryParse(bVal, System.Globalization.NumberStyles.HexNumber, null, out outByteVal) : byte.TryParse(bVal, out outByteVal))
                 {
-                    bytes = BitConverter.GetBytes(outByteVal);
+                    bytes = new byte[] {outByteVal};
                     return true;
                 }
             }
