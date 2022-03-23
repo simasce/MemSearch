@@ -69,16 +69,16 @@ namespace SimAssembler.OpcodeParameters
             }
 
             int temp = 0;
-            if((hex ? !int.TryParse(bVal, System.Globalization.NumberStyles.HexNumber, null, out temp) : !int.TryParse(bVal, out temp)) && Size == 1)
+            if((hex ? !int.TryParse(bVal, System.Globalization.NumberStyles.HexNumber, null, out temp) : !int.TryParse(bVal, out temp)))
             {   
                 linkerRequests.Add(new LinkerRequestEntry()
                 {
                     Offset = compiledBytes.Count + extraFrontBytes.Count,
                     PointerName = bVal,
-                    Size = 1,
+                    Size = this.Size,
                     Relative = true
                 });
-                compiledBytes.Add(0x00);
+                compiledBytes.AddRange(Enumerable.Repeat<byte>(0x00, this.Size));
                 return true;
             }
 

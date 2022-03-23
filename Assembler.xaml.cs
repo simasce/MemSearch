@@ -45,28 +45,49 @@ namespace MemSearch
 
         private void Assemble()
         {
+            if (!_memoryProcess.IsOpen())
+                return;
+
             string toAssemble = ".code\n" + AssemblerBox.Text.Trim();
             bool compiled = false;
             ulong targetAddress = ulong.Parse(_currentEntry.Address, System.Globalization.NumberStyles.HexNumber);
 
             var assembled = SimAssembler.Assembler.Assemble(toAssemble, out compiled, targetAddress);
-            if(!compiled)
+            if(!compiled || assembled.Count == 0)
             {
                 MessageBox.Show("Could not compile the given code!", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            int fullsize = assembled.Sum(f => f.Bytes.Count);
-            int origSize = _currentEntry.Size;         
-
-            if (fullsize > origSize)
+            if(assembled.Count > 1)
             {
-                MessageBox.Show("New code is bigger than old one!", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("You can only compile a single opcode!", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
+            int fullsize = assembled.Sum(f => f.Bytes.Count);
+            int origSize = _currentEntry.Size;
+            int numNOPS = Math.Max(0, origSize - fullsize);
+
+            if (fullsize > origSize)
+            {
+                bool finished = false; //unused
+                var disassemble = SimAssembler.Assembler.Disassemble(_memoryProcess.ReadBuffer(targetAddress, 32), out finished, targetAddress);
+
+                int calculated = 0;
+                var toBeReplaced = new List<SimAssembler.OpcodeReturnInfo>();
+                foreach(var e in disassemble)
+                {
+                    toBeReplaced.Add(e);
+                    calculated += e.Bytes.Count;
+                    if (calculated >= fullsize)
+                        break;
+                }
+                numNOPS = calculated - fullsize;
+            }
+
             _memoryProcess.WriteBuffer(targetAddress, assembled.SelectMany(f => f.Bytes)
-                .Concat(Enumerable.Repeat<byte>(0x90, origSize - fullsize))
+                .Concat(Enumerable.Repeat<byte>(0x90, numNOPS))
                 .ToArray());
 
             this.Close();

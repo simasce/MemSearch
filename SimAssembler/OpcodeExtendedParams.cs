@@ -37,7 +37,11 @@ namespace SimAssembler
                 int len = OpcodeParameterArray[i].Count;
 
                 if (names.Equals(name, StringComparison.OrdinalIgnoreCase) && len == numParameters)
+                {
+                    Parameters.Clear();
+                    Parameters.AddRange(OpcodeParameterArray[i]);   
                     return true;
+                }                   
             }
             return false;
         }

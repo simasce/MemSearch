@@ -224,7 +224,7 @@ namespace SimAssembler.OpcodeParameters
         public override bool Compile(string fullString, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
         {
             string[] parms = fullString.Replace(" ", "").Split(',').Take(2).ToArray();
-            if (parms.Length != 2)
+            if (parms.Length == 0)
                 return false;
 
             bool twoMods = false, stepDown = false;
@@ -246,10 +246,12 @@ namespace SimAssembler.OpcodeParameters
                 parms[0] = parms[0].Replace("[", "").Replace("]", "");
 
                 byte[] regBits; //unused
-                if (ConversionHelper.TryConvertNumericBySize(parms[1], 4, out regBits) && Regex.Match(parms[0], @"[A-Z]+").Success)
+                if ((parms.Length == 1 || ConversionHelper.TryConvertNumericBySize(parms[1], 4, out regBits)) && Regex.Match(parms[0], @"[A-Z]+").Success)
                 {
                     RegisterInfo regInfo = null;
                     regInfo = RegisterTools.ParseRegister(parms[0]);
+                    if (regInfo == null)
+                        return false;
 
                     if(regInfo.Type != FirstType)
                     {
@@ -268,6 +270,9 @@ namespace SimAssembler.OpcodeParameters
                 }
                 return false;
             }
+
+            if (parms.Length != 2)
+                return false;
 
             if (!CheckOpcodeCompatibility(parms, ref info1, ref info2, out stepDown, out twoMods))
             {
@@ -324,7 +329,7 @@ namespace SimAssembler.OpcodeParameters
                             linkerRequests.Add(new LinkerRequestEntry()
                             {
                                 Relative = false,
-                                Offset = compiledBytes.Count + extraFrontBytes.Count + 1,
+                                Offset = compiledBytes.Count + extraFrontBytes.Count + 1 + (stepDown ? 1 : 0),
                                 Size = 4,
                                 PointerName = rmClean
                             });
@@ -445,9 +450,6 @@ namespace SimAssembler.OpcodeParameters
 
             if (info1 == null && info2 != null)
             {
-                if (FirstDirection != RegisterDirection.RM || SecondDirection != RegisterDirection.REG)
-                    return false;
-
                 if (info2.Type != SecondType)
                 {
                     if (info2.Type != SecondType - 1)
@@ -458,9 +460,6 @@ namespace SimAssembler.OpcodeParameters
             }
             else if (info1 != null && info2 == null)
             {
-                if (FirstDirection != RegisterDirection.REG || SecondDirection != RegisterDirection.RM)
-                    return false;
-
                 if (info1.Type != FirstType)
                 {
                     if (info1.Type != FirstType - 1)

@@ -45,6 +45,15 @@ namespace SimAssembler
             _pointer = _basePointer = baseAddress;
         }
 
+        public bool Compile(string assemblerText, out string errorCode, Dictionary<string, UInt64> linkerPointers)
+        {
+            foreach(var e in linkerPointers)
+            {
+                _linkerPointers.Add(e.Key.ToUpper(), e.Value);
+            }
+            return Compile(assemblerText, out errorCode);
+        }
+
         public bool Compile(string assemblerText, out string errorCode)
         {
             errorCode = "";
@@ -259,22 +268,10 @@ namespace SimAssembler
             string name = line.Split(' ')[0];
             List<string> parameters = line.Replace(name, "").Split(',').Select(f => f.Trim()).Where(f => !string.IsNullOrEmpty(f)).ToList();
 
-            if (CompileFromContainer(line, name, parameters, OpcodeContainers.OpcodeContainer.Opcodes))
+            if (CompileFromContainer(line, name, parameters, OpcodeContainers.OpcodeContainer.Opcodes)
+                || CompileFromContainer(line, name, parameters, OpcodeContainers.ExtendedOpcodeContainer.Opcodes_0F, 0x0F)
+                || CompileFromContainer(line, name, parameters, OpcodeContainers.ExtendedOpcodeContainer.Opcodes_F3, 0xF3))
             {
-                partErrorCode = "";
-                return true;
-            }
-
-            if (CompileFromContainer(line, name, parameters, OpcodeContainers.ExtendedOpcodeContainer.Opcodes_0F))
-            {
-                _opcodes[_opcodes.Count - 1].Bytes.Insert(0, 0x0F);
-                partErrorCode = "";
-                return true;
-            }
-
-            if (CompileFromContainer(line, name, parameters, OpcodeContainers.ExtendedOpcodeContainer.Opcodes_F3))
-            {
-                _opcodes[_opcodes.Count - 1].Bytes.Insert(0, 0xF3);
                 partErrorCode = "";
                 return true;
             }
@@ -283,7 +280,7 @@ namespace SimAssembler
             return false;
         }
 
-        private bool CompileFromContainer(string line, string name, List<string> parameters, List<Opcode> opcodes)
+        private bool CompileFromContainer(string line, string name, List<string> parameters, List<Opcode> opcodes, byte? extraOpcode=null)
         {            
             var possibleReturns = new List<Tuple<OpcodeReturnInfo, List<LinkerRequestEntry>>>();
            
@@ -295,10 +292,13 @@ namespace SimAssembler
                     List<LinkerRequestEntry> linkerRequestEntries = new List<LinkerRequestEntry>();
                     if (op.Compile(name, parameters, ref result, ref linkerRequestEntries))
                     {
+                        if (extraOpcode != null)
+                            result.Insert(0, extraOpcode.Value);
+
                         var returnInfo = new OpcodeReturnInfo()
                         {
                             Bytes = result,
-                            Offset = _pointer,
+                            Offset = _pointer + (ulong)(extraOpcode.HasValue ? 1 : 0),
                             Result = line
                         };
 
@@ -313,7 +313,19 @@ namespace SimAssembler
             if (possibleReturns.Count == 0)
                 return false;
 
+            //bad hack, does not resolve many things
             var bestOption = possibleReturns.OrderBy(f => f.Item1.Bytes.Count).FirstOrDefault();
+            if (possibleReturns[0].Item2.Count > 0)
+            {
+                var curLinker = possibleReturns[0].Item2;
+                ulong ptr = 0;
+                if (_linkerPointers.TryGetValue(curLinker[0].PointerName, out ptr))
+                {
+                    if (ptr > 255)
+                        bestOption = possibleReturns.OrderByDescending(f => f.Item1.Bytes.Count).FirstOrDefault();
+                }
+            }
+            
             if (bestOption == null)
                 return false;
 

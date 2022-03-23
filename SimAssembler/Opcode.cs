@@ -26,8 +26,11 @@ namespace SimAssembler
 
         public virtual bool SuitableOpcode(string name, int numParameters)
         {
-            return Name.Equals(name, StringComparison.OrdinalIgnoreCase) && 
-                numParameters == ((Parameters.Count > 0 && Parameters[0].GetType() == typeof(Register)) ? Parameters.Count + 1 : Parameters.Count);
+            bool parametersGood = numParameters == Parameters.Count;
+            if (Parameters.Count > 0 && Parameters[0].GetType() == typeof(Register))
+                parametersGood = (parametersGood || (numParameters == Parameters.Count + 1));       
+
+            return Name.Equals(name, StringComparison.OrdinalIgnoreCase) && parametersGood;
         }
 
         public virtual bool Compile(string code, List<string> parameters, ref List<byte> result, ref List<LinkerRequestEntry> linkerRequests)

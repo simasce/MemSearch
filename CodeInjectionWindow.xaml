@@ -1,0 +1,15 @@
+﻿<Window x:Class="MemSearch.CodeInjectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MemSearch"
+        mc:Ignorable="d"
+        Title="Code Injection" Height="450" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF979797">
+    <Grid>
+        <Label Name="AddressLabel" Content="Address:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="CodeBox" HorizontalAlignment="Center" Margin="0,53,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="456" Height="340" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
+        <Button Name="InjectCodeButton" Content="Inject" HorizontalAlignment="Left" Margin="315,10,0,0" VerticalAlignment="Top" Height="38" Width="152" Click="InjectCodeButton_Click"/>
+
+    </Grid>
+</Window>

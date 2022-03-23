@@ -20,8 +20,7 @@ namespace MemSearch
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += WindowProcessTimer_Tick;
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 200);
-            dispatcherTimer.Start();
-
+            dispatcherTimer.Start();           
             InitializeComponent();
         }
 
@@ -46,6 +45,9 @@ namespace MemSearch
         {
             ulong startAddress = 0;
             int size = 0;
+
+            if (!TargetProcess.IsOpen())
+                return;
 
             if (!ulong.TryParse(StartAddressTextBox.Text, NumberStyles.HexNumber, null, out startAddress) ||
                 !int.TryParse(SizeTextBox.Text, out size))
@@ -85,6 +87,21 @@ namespace MemSearch
             new Assembler((DisassemblerEntry)DisassemblerDataGrid.SelectedItem, TargetProcess).ShowDialog();
 
             Update();
+        }
+
+        private void InjectCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DisassemblerDataGrid.SelectedItem == null)
+                return;
+
+            new CodeInjectionWindow(TargetProcess, (DisassemblerEntry)DisassemblerDataGrid.SelectedItem).ShowDialog();
+
+            Update();
+        }
+
+        private void DisassemblerDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            InjectCodeButton.IsEnabled = (DisassemblerDataGrid.SelectedItem != null);
         }
     }
 }

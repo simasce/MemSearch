@@ -108,6 +108,9 @@ namespace MemSearch
 		[DllImport("kernel32.dll", SetLastError = true, EntryPoint = "VirtualQueryEx")]
 		public static extern int VirtualQueryEx64(IntPtr hProcess, IntPtr lpAddress, out MEMORY_BASIC_INFORMATION64 lpBuffer, uint dwLength);
 
+		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+		public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern bool CloseHandle(IntPtr hObject);
 

@@ -10,16 +10,17 @@
     <Grid>
         <TextBox x:Name="StartAddressTextBox" HorizontalAlignment="Left" Height="26" Margin="15,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
         <Label x:Name="StartAddressLabel" Content="Start Address (hex)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18,8,0,0"/>
-        <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Left" Height="34" Margin="380,30,0,0" VerticalAlignment="Top" Width="179" Click="UpdateButton_Click"/>
+        <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Left" Height="34" Margin="435,30,0,0" VerticalAlignment="Top" Width="124" Click="UpdateButton_Click"/>
         <TextBox x:Name="SizeTextBox" HorizontalAlignment="Left" Height="26" Margin="138,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
         <Label x:Name="SizeLabel" Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="180,8,0,0"/>
 
-        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Center" Height="216" Margin="0,69,0,0" VerticalAlignment="Top" Width="549" MouseDoubleClick="DisassemblerDataGrid_MouseDoubleClick">
+        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Center" Height="216" Margin="0,69,0,0" VerticalAlignment="Top" Width="549" MouseDoubleClick="DisassemblerDataGrid_MouseDoubleClick" SelectionChanged="DisassemblerDataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Address" Width="100" Binding="{Binding Path=Address}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Bytes" Width="250" Binding="{Binding Path=ByteString}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Code" Width="199" Binding="{Binding Path=Code}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
+        <Button x:Name="InjectCodeButton" Content="Inject Code" HorizontalAlignment="Left" Height="34" Margin="306,30,0,0" VerticalAlignment="Top" Width="124" IsEnabled="False" Click="InjectCodeButton_Click"/>
     </Grid>
 </Window>

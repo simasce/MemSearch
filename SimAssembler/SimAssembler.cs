@@ -107,5 +107,21 @@ namespace SimAssembler
             finished = true;
             return compiler.Opcodes;
         }
+
+        public static List<OpcodeReturnInfo> AssembleWithExtraLinkers(string assemblerText, out bool finished, UInt64 baseAddress, Dictionary<string, UInt64> linkerPointers)
+        {
+            AssemblerCompiler compiler = new AssemblerCompiler(baseAddress);
+
+            string errorCode = "";
+            if (!compiler.Compile(assemblerText, out errorCode, linkerPointers))
+            {
+                //Console.WriteLine(errorCode);
+                finished = false;
+                return null;
+            }
+
+            finished = true;
+            return compiler.Opcodes;
+        }
     }
 }

@@ -289,5 +289,10 @@ namespace MemSearch
 			byte[] wBuffer = ASCIIConverter.GetBytes(str);
 			WriteBuffer(address, wBuffer);
 		}
+
+		public UInt64 AllocateMemory(uint size, MemoryProtection protection)
+        {
+			return (UInt64)MemoryAPI.VirtualAllocEx(ProcessHandle, IntPtr.Zero, size, (uint)(MemoryState.MEM_COMMIT | MemoryState.MEM_RESERVE), (uint)protection);
+        }
 	}
 }
