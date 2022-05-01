@@ -7,8 +7,8 @@ on:
     branches: [ master ]
     
 env:
-  ZIP_PATH: bin/Release/net5.0-windows/MemSearch.zip
-  FOLDER_PATH: bin/Release/net5.0-windows/publish/
+  ZIP_PATH: bin/x86/Release/net5.0-windows/MemSearch.zip
+  FOLDER_PATH: bin/x86/Release/net5.0-windows/publish/
   
 jobs:
   build:
