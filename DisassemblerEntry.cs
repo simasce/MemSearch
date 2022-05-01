@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace MemSearch
 {
-    internal class DisassemblerEntry
+    public class DisassemblerEntry
     {
         public string Address { get; set; }
         public string ByteString { get; set; }
         public string Code { get; set; }
+        public int Size { get; set; }
     }
 }

@@ -31,10 +31,10 @@ namespace MemSearch
 			InitializeComponent();
 			ProcessSelectButton.IsEnabled = false;
 			AvailableProcesses = Process.GetProcesses();
-			for(int i = 0; i < AvailableProcesses.Length; i++)
+			for (int i = 0; i < AvailableProcesses.Length; i++)
 			{
-				ProcessSelectDataGrid.Items.Add(new ProcessInfo() { ProcessName = AvailableProcesses[i].ProcessName, 
-					ProcessID = AvailableProcesses[i].Id.ToString(), ThisProcess = AvailableProcesses[i]});
+				ProcessSelectDataGrid.Items.Add(new ProcessInfo() { ProcessName = AvailableProcesses[i].ProcessName,
+					ProcessID = AvailableProcesses[i].Id.ToString(), ThisProcess = AvailableProcesses[i] });
 			}
 		}
 

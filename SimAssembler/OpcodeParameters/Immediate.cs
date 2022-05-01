@@ -17,21 +17,36 @@ namespace SimAssembler.OpcodeParameters
 
         public override OpcodeReturnInfo Read(OpcodeReadInfo info)
         {
+            int curSize = Size;
+
+            if (info.OverrideByte == 0x66) //lower size prefix
+                curSize = Math.Max(1, curSize / 2);
+
             MemoryStream ms = info.Stream;
-            if (ms.Position + Size > ms.Length)
+            if (ms.Position + curSize > ms.Length)
                 throw new IndexOutOfRangeException();
 
-            byte[] buffer = new byte[Size];
-            ms.Read(buffer, 0, Size);
-
-            Array.Reverse(buffer);
+            byte[] buffer = new byte[curSize];
+            ms.Read(buffer, 0, curSize);
 
             return new OpcodeReturnInfo()
             {
-                Result = "0x" + string.Join("", buffer.Select(f => f.ToString("X2"))),
-                Bytes = buffer,
+                Result = "0x" + string.Join("", buffer.Reverse().Select(f => f.ToString("X2"))),
+                Bytes = buffer.ToList(),
                 Offset = info.Offset
             };
+        }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            byte[] compiled;
+            if (ConversionHelper.TryConvertNumericBySize(parameter, Size, out compiled))
+            {
+                compiledBytes.AddRange(compiled);
+                return true;
+            }
+                
+            return false;
         }
     }
 }

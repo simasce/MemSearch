@@ -15,9 +15,10 @@ Note: Running requires Administrator rights to get correct read/write control of
 
 # Features
 ```
-32 and 64 bit support
+X86 Support
 Memory searching
 Memory editing
 Saving and loading previously saved addresses
-32 bit disassembler
+X86 Disassembler
+Debugger
 ```

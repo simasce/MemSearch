@@ -46,7 +46,7 @@ namespace MemSearch
 			SearchTypeComboBox.SelectedItem = SearchTypeConverter.SearchTypeStrings[(int)CurrentSearchType];
 			SearchProgressBar.Maximum = 100;
 			SearchProgressBar.Minimum = 0;
-        }
+		}
 
 		private bool ProcessSelected()
 		{
