@@ -16,5 +16,13 @@ namespace SimAssembler.OpcodeParameters
             ret.Result = "ds:" + ret.Result;
             return ret;
         }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            if(parameter.StartsWith("DS:"))
+                return base.Compile(parameter.Substring(3).Trim(), ref compiledBytes, ref extraFrontBytes, ref linkerRequests);
+
+            return false;
+        }
     }
 }

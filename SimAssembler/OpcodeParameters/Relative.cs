@@ -52,10 +52,44 @@ namespace SimAssembler.OpcodeParameters
 
             return new OpcodeReturnInfo()
             {
-                Bytes = buffer_copy,
+                Bytes = buffer_copy.ToList(),
                 Offset = info.Offset,
                 Result = result.ToString("X8")
             };
+        }
+
+        public override bool Compile(string parameter, ref List<byte> compiledBytes, ref List<byte> extraFrontBytes, ref List<LinkerRequestEntry> linkerRequests)
+        {
+            bool hex = false;
+            string bVal = parameter;
+            if (parameter.StartsWith("0X"))
+            {
+                bVal = parameter.Substring(2);
+                hex = true;
+            }
+
+            int temp = 0;
+            if((hex ? !int.TryParse(bVal, System.Globalization.NumberStyles.HexNumber, null, out temp) : !int.TryParse(bVal, out temp)))
+            {   
+                linkerRequests.Add(new LinkerRequestEntry()
+                {
+                    Offset = compiledBytes.Count + extraFrontBytes.Count,
+                    PointerName = bVal,
+                    Size = this.Size,
+                    Relative = true
+                });
+                compiledBytes.AddRange(Enumerable.Repeat<byte>(0x00, this.Size));
+                return true;
+            }
+
+            byte[] compiled;
+            if (ConversionHelper.TryConvertNumericBySize(parameter, Size, out compiled))
+            {
+                compiledBytes.AddRange(compiled);
+                return true;
+            }
+
+            return false;
         }
     }
 }

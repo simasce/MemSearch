@@ -8,11 +8,6 @@ namespace SimAssembler
 {
     public static class Assembler
     {
-        public static void Assemble(string assembly)
-        {
-            throw new NotImplementedException();
-        }
-
         public static List<OpcodeReturnInfo> Disassemble(byte[] bytecode, out bool finished, UInt64 baseAddress=0)
         {
             List<OpcodeReturnInfo> retInfo = new List<OpcodeReturnInfo>();
@@ -80,7 +75,7 @@ namespace SimAssembler
 
                         retInfo.Add(new OpcodeReturnInfo()
                         {
-                            Bytes = opBytes.ToArray(),
+                            Bytes = opBytes,
                             Offset = currentOffset,
                             Result = result
                         });
@@ -95,6 +90,38 @@ namespace SimAssembler
                 finished = false;
                 return retInfo;
             }
+        }
+
+        public static List<OpcodeReturnInfo> Assemble(string assemblerText, out bool finished, UInt64 baseAddress = 0)
+        {
+            AssemblerCompiler compiler = new AssemblerCompiler(baseAddress);
+
+            string errorCode = "";
+            if(!compiler.Compile(assemblerText, out errorCode))
+            {
+                //Console.WriteLine(errorCode);
+                finished = false;
+                return null;
+            }
+
+            finished = true;
+            return compiler.Opcodes;
+        }
+
+        public static List<OpcodeReturnInfo> AssembleWithExtraLinkers(string assemblerText, out bool finished, UInt64 baseAddress, Dictionary<string, UInt64> linkerPointers)
+        {
+            AssemblerCompiler compiler = new AssemblerCompiler(baseAddress);
+
+            string errorCode = "";
+            if (!compiler.Compile(assemblerText, out errorCode, linkerPointers))
+            {
+                //Console.WriteLine(errorCode);
+                finished = false;
+                return null;
+            }
+
+            finished = true;
+            return compiler.Opcodes;
         }
     }
 }

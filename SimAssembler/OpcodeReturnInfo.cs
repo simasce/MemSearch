@@ -10,7 +10,7 @@ namespace SimAssembler
     {
         public string Result { get; set; }
         public UInt64 Offset { get; set; } // Offset is set by handler
-        public byte[] Bytes { get; set; }  // Bytes is set by OpcodeParameter but then appended to front by handler
+        public List<byte> Bytes { get; set; }  // Bytes is set by OpcodeParameter but then appended to front by handler
 
         public override string ToString()
         {
