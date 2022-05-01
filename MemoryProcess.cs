@@ -17,6 +17,7 @@ namespace MemSearch
 	public class MemoryProcess : IDisposable
 	{
 		private Process CurrentProcess;
+		private Debugger ProcessDebugger = null;
 
 		private IntPtr ProcessHandle = IntPtr.Zero;
 		private bool ProcessOpen = false;
@@ -60,10 +61,15 @@ namespace MemSearch
 				throw new Exception("Failed to open process!");
 
 			ProcessOpen = true;
+			ProcessDebugger = new Debugger(this);
+			ProcessDebugger.Initialize();
 		}
 
 		public void Close(bool GC_Call)
 		{
+			if(ProcessDebugger != null)
+				ProcessDebugger.Stop();
+
 			if (!ProcessOpen)
 				return;
 
@@ -76,6 +82,11 @@ namespace MemSearch
 		{
 			return CurrentProcess;
 		}
+
+		public Debugger GetDebugger()
+        {
+			return ProcessDebugger;
+        }
 
 		public bool Is64Bit()
 		{

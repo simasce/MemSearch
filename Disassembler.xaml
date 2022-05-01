@@ -5,22 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MemSearch"
         mc:Ignorable="d"
-        Title="Disassembler
-" Height="327" Width="589" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF979797">
+        Title="Memory View" Height="592" Width="832" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF979797" Loaded="Window_Loaded">
     <Grid>
-        <TextBox x:Name="StartAddressTextBox" HorizontalAlignment="Left" Height="26" Margin="15,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
-        <Label x:Name="StartAddressLabel" Content="Start Address (hex)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18,8,0,0"/>
-        <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Left" Height="34" Margin="435,30,0,0" VerticalAlignment="Top" Width="124" Click="UpdateButton_Click"/>
-        <TextBox x:Name="SizeTextBox" HorizontalAlignment="Left" Height="26" Margin="138,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
-        <Label x:Name="SizeLabel" Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="180,8,0,0"/>
+        <TextBox x:Name="StartAddressTextBox" HorizontalAlignment="Left" Height="26" Margin="10,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
+        <Label x:Name="StartAddressLabel" Content="Start Address (hex)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="13,8,0,0"/>
+        <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Left" Height="34" Margin="306,26,0,0" VerticalAlignment="Top" Width="124" Click="UpdateButton_Click"/>
+        <TextBox x:Name="SizeTextBox" HorizontalAlignment="Left" Height="26" Margin="128,34,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="115"/>
+        <Label x:Name="SizeLabel" Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="170,8,0,0"/>
 
-        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Center" Height="216" Margin="0,69,0,0" VerticalAlignment="Top" Width="549" MouseDoubleClick="DisassemblerDataGrid_MouseDoubleClick" SelectionChanged="DisassemblerDataGrid_SelectionChanged">
+        <DataGrid x:Name="DisassemblerDataGrid" HorizontalAlignment="Left" Height="435" Margin="10,65,0,0" VerticalAlignment="Top" Width="549" MouseDoubleClick="DisassemblerDataGrid_MouseDoubleClick" SelectionChanged="DisassemblerDataGrid_SelectionChanged" KeyDown="DisassemblerDataGrid_KeyDown">
             <DataGrid.Columns>
+                <DataGridTextColumn Header="" Width="10" Binding="{Binding Path=BreakpointHit}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Address" Width="100" Binding="{Binding Path=Address}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Bytes" Width="250" Binding="{Binding Path=ByteString}" IsReadOnly="true"/>
                 <DataGridTextColumn Header="Code" Width="199" Binding="{Binding Path=Code}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="InjectCodeButton" Content="Inject Code" HorizontalAlignment="Left" Height="34" Margin="306,30,0,0" VerticalAlignment="Top" Width="124" IsEnabled="False" Click="InjectCodeButton_Click"/>
+        <Button x:Name="InjectCodeButton" Content="Inject Code" HorizontalAlignment="Left" Height="34" Margin="435,26,0,0" VerticalAlignment="Top" Width="124" IsEnabled="False" Click="InjectCodeButton_Click"/>
+        <Button x:Name="DebuggerAddBreakpointButton" Content="Toggle Breakpoint [F2]" HorizontalAlignment="Left" Height="42" Margin="10,505,0,0" VerticalAlignment="Top" Width="256" Click="DebuggerAddBreakpointButton_Click" IsEnabled="False"/>
+        <Button x:Name="DebuggerContinueButton" Content="Continue" HorizontalAlignment="Left" Height="42" Margin="285,505,0,0" VerticalAlignment="Top" Width="274" Click="DebuggerContinueButton_Click" IsEnabled="False"/>
+        <DataGrid x:Name="DebuggerDataGrid" HorizontalAlignment="Left" Height="339" Margin="564,26,0,0" VerticalAlignment="Top" Width="252">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Register" Width="100" Binding="{Binding Path=Name}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Value" Width="250" Binding="{Binding Path=ValueHex}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid x:Name="BreakpointDataGrid" HorizontalAlignment="Left" Height="177" Margin="564,370,0,0" VerticalAlignment="Top" Width="252" KeyDown="BreakpointDataGrid_KeyDown" SelectionChanged="BreakpointDataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="" Width="10" Binding="{Binding Path=BreakpointHit}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Address" Width="100" Binding="{Binding Path=Address}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Count" Width="60" Binding="{Binding Path=Count}" IsReadOnly="true"/>
+                <DataGridTextColumn Header="Time" Width="90" Binding="{Binding Path=Time}" IsReadOnly="true"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

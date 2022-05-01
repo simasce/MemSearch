@@ -289,8 +289,14 @@ namespace SimAssembler.OpcodeParameters
                 }
                 else
                 {
-                    //reg is ez
-                    outputByte |= (byte)((FirstDirection == RegisterDirection.REG ? info1 : info2).Index << 3); //reg
+                    try
+                    {
+                        outputByte |= (byte)((FirstDirection == RegisterDirection.REG ? info1 : info2).Index << 3); //reg
+                    }
+                    catch(Exception e)
+                    {
+                        return false;
+                    }
 
                     //process RM and MOD
                     RegisterInfo rmInfo = (FirstDirection == RegisterDirection.RM ? info1 : info2);
