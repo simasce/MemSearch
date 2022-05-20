@@ -2,7 +2,7 @@
 [![Latest release](https://img.shields.io/github/v/release/simasce/MemSearch)](https://github.com/simasce/MemSearch)
 
 # MemSearch
-C# WinAPI program for searching and editing x86 and 64bit program memory 
+C# WinAPI program for searching and editing x86 Windows processes
 
 # Installation
 
@@ -16,9 +16,10 @@ Note: Running requires Administrator rights to get correct read/write control of
 # Features
 ```
 X86 Support
+X86 Disassembler
+X86 Assembler
 Memory searching
 Memory editing
 Saving and loading previously saved addresses
-X86 Disassembler
 Debugger
 ```
