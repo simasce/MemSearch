@@ -261,6 +261,9 @@ namespace MemSearch
                 disasmEntry.BreakpointHit = "";
 
             BreakpointDataGrid.SelectedItem = null;
+            BreakpointDataGrid.Items.Refresh();
+            DisassemblerDataGrid.Items.Refresh();
+
             TargetDebugger.ContinueDebugEvent();
         }
 
@@ -304,6 +307,9 @@ namespace MemSearch
             breakEntry.BreakpointHit = "+";
             if (disasmEntry != null)
                 disasmEntry.BreakpointHit = "+";
+
+            BreakpointDataGrid.Items.Refresh();
+            DisassemblerDataGrid.Items.Refresh();
 
             IsExecutionPaused = true;
             DebuggerContinueButton.IsEnabled = true;
